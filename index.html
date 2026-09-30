@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus Print Queue — Smart Print Management</title>
+  <meta name="description" content="Campus Print Queue: A streamlined web interface for students to submit print jobs and for print shop operators to manage requests in real-time." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <!-- ───────────── Navigation ───────────── -->
+  <nav id="main-nav">
+    <div class="nav-inner">
+      <div class="nav-brand" id="nav-brand">
+        <span class="brand-icon">🖨️</span>
+        <span class="brand-text">Campus<span class="brand-accent">Print</span></span>
+      </div>
+      <div class="nav-links">
+        <button class="nav-link active" data-view="student" id="nav-student">Submit Job</button>
+        <button class="nav-link" data-view="queue" id="nav-queue">Queue <span class="queue-badge" id="queue-badge">0</span></button>
+        <button class="nav-link" data-view="admin" id="nav-admin">
+          <span class="admin-icon">🔒</span> Admin
+        </button>
+      </div>
+      <div class="nav-time" id="nav-time"></div>
+    </div>
+  </nav>
+
+  <!-- ───────────── Hero / Student View ───────────── -->
+  <main>
+    <section class="view active" id="view-student">
+      <div class="hero-section">
+        <div class="hero-particles" id="hero-particles"></div>
+        <div class="hero-content">
+          <h1 class="hero-title">Submit Your <span class="gradient-text">Print Job</span></h1>
+          <p class="hero-subtitle">Upload documents, set your preferences, and join the queue in seconds.</p>
+        </div>
+      </div>
+
+      <div class="form-container">
+        <form id="print-form" class="print-form" autocomplete="off">
+          <div class="form-section">
+            <div class="section-header">
+              <span class="section-icon">👤</span>
+              <h2>Student Details</h2>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="student-name">Full Name</label>
+                <input type="text" id="student-name" placeholder="e.g. Aarav Sharma" required />
+              </div>
+              <div class="form-group">
+                <label for="roll-number">Roll Number</label>
+                <input type="text" id="roll-number" placeholder="e.g. 22CSE1045" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-header">
+              <span class="section-icon">⚙️</span>
+              <h2>Print Settings</h2>
+            </div>
+            <div class="form-grid form-grid-3">
+              <div class="form-group">
+                <label for="page-count">Page Count</label>
+                <input type="number" id="page-count" min="1" value="1" required />
+              </div>
+              <div class="form-group">
+                <label for="color-mode">Color Mode</label>
+                <div class="toggle-group" id="color-mode-group">
+                  <button type="button" class="toggle-btn active" data-value="bw" id="toggle-bw">
+                    <span class="toggle-icon">◐</span> B&W
+                  </button>
+                  <button type="button" class="toggle-btn" data-value="color" id="toggle-color">
+                    <span class="toggle-icon">🌈</span> Color
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="copies">Copies</label>
+                <div class="stepper" id="copies-stepper">
+                  <button type="button" class="stepper-btn" id="copies-minus">−</button>
+                  <input type="number" id="copies" min="1" max="50" value="1" required />
+                  <button type="button" class="stepper-btn" id="copies-plus">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="paper-size">Paper Size</label>
+                <select id="paper-size">
+                  <option value="A4" selected>A4</option>
+                  <option value="A3">A3</option>
+                  <option value="Letter">Letter</option>
+                  <option value="Legal">Legal</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="print-side">Sides</label>
+                <select id="print-side">
+                  <option value="single" selected>Single-sided</option>
+                  <option value="double">Double-sided</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-header">
+              <span class="section-icon">📎</span>
+              <h2>Upload Document</h2>
+            </div>
+            <div class="upload-zone" id="upload-zone">
+              <input type="file" id="file-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.txt" hidden />
+              <div class="upload-content" id="upload-content">
+                <div class="upload-icon-wrapper">
+                  <span class="upload-icon">📄</span>
+                </div>
+                <p class="upload-title">Drop your file here or <span class="upload-browse">browse</span></p>
+                <p class="upload-hint">PDF, DOC, PPT, XLS, JPG, PNG — max 25 MB</p>
+              </div>
+              <div class="upload-preview hidden" id="upload-preview">
+                <span class="preview-icon" id="preview-icon">📄</span>
+                <div class="preview-info">
+                  <p class="preview-name" id="preview-name"></p>
+                  <p class="preview-size" id="preview-size"></p>
+                </div>
+                <button type="button" class="preview-remove" id="preview-remove">✕</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-header">
+              <span class="section-icon">📝</span>
+              <h2>Additional Instructions <span class="optional-tag">Optional</span></h2>
+            </div>
+            <textarea id="instructions" rows="3" placeholder="e.g. Print pages 5–12 only, staple top-left, binding required…"></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submit-btn">
+            <span class="btn-text">Submit Print Job</span>
+            <span class="btn-icon">→</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Success Modal -->
+      <div class="modal-overlay hidden" id="success-modal">
+        <div class="modal-card">
+          <div class="modal-checkmark">
+            <svg viewBox="0 0 52 52" class="checkmark-svg">
+              <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+              <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+          </div>
+          <h2 class="modal-title">Job Submitted!</h2>
+          <p class="modal-token">Token: <strong id="modal-token-value">—</strong></p>
+          <p class="modal-msg">Your print job has been added to the queue. Show this token at the print counter.</p>
+          <button class="modal-btn" id="modal-close">Got It</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── Queue View ───────────── -->
+    <section class="view" id="view-queue">
+      <div class="queue-header">
+        <h1 class="section-title">Print <span class="gradient-text">Queue</span></h1>
+        <p class="section-subtitle">Real-time view of all pending, processing, and completed jobs.</p>
+        <div class="queue-stats" id="queue-stats">
+          <div class="stat-card" id="stat-pending">
+            <span class="stat-value">0</span>
+            <span class="stat-label">Pending</span>
+          </div>
+          <div class="stat-card" id="stat-processing">
+            <span class="stat-value">0</span>
+            <span class="stat-label">Processing</span>
+          </div>
+          <div class="stat-card" id="stat-done">
+            <span class="stat-value">0</span>
+            <span class="stat-label">Completed</span>
+          </div>
+        </div>
+      </div>
+      <div class="queue-list" id="queue-list">
+        <div class="queue-empty" id="queue-empty">
+          <span class="empty-icon">📭</span>
+          <p>No print jobs in the queue yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── Admin View ───────────── -->
+    <section class="view" id="view-admin">
+      <!-- Admin Login -->
+      <div class="admin-login" id="admin-login">
+        <div class="login-card">
+          <div class="login-icon">🔐</div>
+          <h2>Admin Access</h2>
+          <p>Enter the operator password to manage the print queue.</p>
+          <form id="login-form">
+            <div class="form-group">
+              <label for="admin-password">Password</label>
+              <input type="password" id="admin-password" placeholder="Enter admin password" required />
+              <p class="login-hint">Default: <code>admin123</code></p>
+            </div>
+            <button type="submit" class="submit-btn" id="login-btn">
+              <span class="btn-text">Unlock Panel</span>
+              <span class="btn-icon">🔓</span>
+            </button>
+            <p class="login-error hidden" id="login-error">Incorrect password. Try again.</p>
+          </form>
+        </div>
+      </div>
+
+      <!-- Admin Dashboard -->
+      <div class="admin-dashboard hidden" id="admin-dashboard">
+        <div class="admin-topbar">
+          <div>
+            <h1 class="section-title">Operator <span class="gradient-text">Dashboard</span></h1>
+            <p class="section-subtitle">Manage incoming print requests in real-time.</p>
+          </div>
+          <div class="admin-actions">
+            <button class="action-btn danger" id="admin-clear-done">Clear Completed</button>
+            <button class="action-btn outline" id="admin-logout">Logout</button>
+          </div>
+        </div>
+
+        <div class="admin-filters">
+          <button class="filter-chip active" data-filter="all" id="filter-all">All</button>
+          <button class="filter-chip" data-filter="pending" id="filter-pending">Pending</button>
+          <button class="filter-chip" data-filter="processing" id="filter-processing">Processing</button>
+          <button class="filter-chip" data-filter="done" id="filter-done">Done</button>
+        </div>
+
+        <div class="admin-queue" id="admin-queue">
+          <div class="queue-empty" id="admin-queue-empty">
+            <span class="empty-icon">📭</span>
+            <p>No print jobs to display.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ───────────── Toast Container ───────────── -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
